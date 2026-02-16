@@ -28,7 +28,7 @@ class CatalogView(TemplateView):
         'color': lambda queryset, value: queryset.filter(color__iexact=value),
         'min_price': lambda queryset, value: queryset.filter(price_gte=value),
         'max_price': lambda queryset, value: queryset.filter(price_lte=value),
-        'size': lambda queryset, value: queryset.filter(product_size__size__name=value),
+        'size': lambda queryset, value: queryset.filter(product_sizes__size__name=value),
 
     }
 
@@ -81,15 +81,15 @@ class CatalogView(TemplateView):
         if request.headers.get('HX-Request'):
             if context.get('show_search'):
                 return TemplateResponse(request, 'main/search_input.html',context)
-            elif context('reset_search'):
+            elif context.get('reset_search'):
                 return TemplateResponse(request,'main/search_button.html',{})
-            temlplate = 'main/filter_modal.html' if request.GET.get('show_filters') == 'true' else 'main/catalog.html'
+            template = 'main/filter_modal.html' if request.GET.get('show_filters') == 'true' else 'main/catalog.html'
             return TemplateResponse(request,template,context)
         return TemplateResponse(request,self.template_name,context)
     
 
 class ProductDetailView(DetailView):
-    modal = Product
+    model = Product
     template_name = 'main/base.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -97,7 +97,7 @@ class ProductDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product = self.get_object()
-        context['categoties'] = Category.objects.all()
+        context['categories'] = Category.objects.all()
         context['related_products'] = Product.objects.filter(
             category=product.category
         ).exclude(id=product.id)[:4]
@@ -107,8 +107,8 @@ class ProductDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(**kwargs)
-        if request.header.get('HX-Request'):
+        if request.headers.get('HX-Request'):
             return TemplateResponse(request,'main/product_detail.html',context)
-        raise TemplateResponse(request,self.template_name,context)
+        return TemplateResponse(request,self.template_name,context)
             
 
