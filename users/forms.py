@@ -24,7 +24,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('first_name','last_name','email','password1','password2')
 
     def clean_email(self):
-        email = self.cleanned_data.get('email')
+        email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('This email is already in use.')
         return email
