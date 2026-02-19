@@ -30,7 +30,7 @@ class CartModalView(CartMixin, View):
         cart = self.get_cart(request)
         context = {
             'cart': cart,
-            'cart_items': cart.items.selected_related(
+            'cart_items': cart.items.select_related(
                 'product',
                 'product_size__size'
             ).order_by('-added_at')
@@ -65,7 +65,7 @@ class AddToCartView(CartMixin,View):
                     'error': 'No sizes available'
                 }, status=400)
             
-        quantity = form.clean_data['quantity']
+        quantity = form.cleaned_data['quantity']
         if product_size.stock < quantity:
             return JsonResponse({
                 'error': f"Only {product_size.stock} items available"
